@@ -1,0 +1,335 @@
+"""Dynamic firewall + security-event reporter  (Ryu, OpenFlow 1.3).
+
+Run from the project root:
+
+    FW_MODE=dynamic ryu-manager controller/firewall_controller.py
+
+Modes (env FW_MODE)
+    dynamic  table-miss -> controller; per-flow allow / deny rules, automatic
+             escalation deny -> block, timed recovery, events -> logger.   [default]
+    static   the same policy.json compiled ONCE into flows (a classic pre-set
+             ACL). No packet-ins, no logging, no escalation.
+    nofw     every switch just runs OVS NORMAL (plain L2 switching).
+
+Other settings (env): FW_POLICY, FW_THRESHOLD, FW_WINDOW, FW_BLOCK_TIME,
+FW_ALLOW_IDLE, FW_DENY_IDLE, FW_EDGE_DPIDS, LOGGER_HOST, LOGGER_PORT, FW_SPOOL.
+
+Flow priorities (edge switch)                 hard/idle timeout
+    300  BLOCK  in_port + eth_src -> drop     hard = FW_BLOCK_TIME, FLOW_REMOVED sent
+    200  DENY   ip/tcp 4-tuple    -> drop     idle = FW_DENY_IDLE
+    100  ALLOW  ip + tcp port     -> output   idle = FW_ALLOW_IDLE (and the reverse path)
+      0  table-miss               -> controller
+"""
+import ipaddress
+import math
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from ryu.base import app_manager                                    # noqa: E402
+from ryu.controller import ofp_event                                # noqa: E402
+from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER, set_ev_cls  # noqa: E402
+from ryu.lib import hub                                             # noqa: E402
+from ryu.lib.packet import ether_types, ethernet, in_proto, ipv4, packet, tcp, udp  # noqa: E402
+from ryu.ofproto import ofproto_v1_3                                # noqa: E402
+
+from common.engine import FirewallEngine, PacketInfo                # noqa: E402
+from common.eventsender import EventSender                          # noqa: E402
+from common.policy import PolicyTable                               # noqa: E402
+from common.protocol import make_event                              # noqa: E402
+
+PRIO_MISS, PRIO_L2, PRIO_ARP, PRIO_ALLOW, PRIO_DENY, PRIO_BLOCK = 0, 10, 50, 100, 200, 300
+COOKIE_ALLOW, COOKIE_DENY, COOKIE_BLOCK = 0xA110, 0xDE17, 0xB10C
+
+IP_PROTO = {"tcp": in_proto.IPPROTO_TCP, "udp": in_proto.IPPROTO_UDP, "icmp": in_proto.IPPROTO_ICMP}
+
+
+def _env(name, default, cast=str):
+    raw = os.environ.get(name)
+    return cast(raw) if raw not in (None, "") else default
+
+
+def _addr_arg(net):
+    """ipaddress network -> value accepted by OFPMatch ipv4_src/ipv4_dst."""
+    if net.prefixlen == net.max_prefixlen:
+        return str(net.network_address)
+    return (str(net.network_address), str(net.netmask))
+
+
+class FirewallController(app_manager.RyuApp):
+    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+
+    def __init__(self, *args, **kwargs):
+        super(FirewallController, self).__init__(*args, **kwargs)
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.mode = _env("FW_MODE", "dynamic")
+        if self.mode not in ("dynamic", "static", "nofw"):
+            raise ValueError("FW_MODE must be dynamic, static or nofw")
+        self.policy = PolicyTable.from_file(_env("FW_POLICY", os.path.join(root, "policy.json")))
+        self.allow_idle = _env("FW_ALLOW_IDLE", 30, int)
+        self.deny_idle = _env("FW_DENY_IDLE", 5, int)
+        self.edge_dpids = set(int(x) for x in _env("FW_EDGE_DPIDS", "1").split(","))
+        self.engine = FirewallEngine(
+            self.policy,
+            threshold=_env("FW_THRESHOLD", 5, int),
+            window=_env("FW_WINDOW", 10.0, float),
+            block_time=_env("FW_BLOCK_TIME", 20.0, float))
+        os.makedirs(os.path.join(root, "logs"), exist_ok=True)
+        self.sender = EventSender(
+            _env("LOGGER_HOST", "192.168.99.2"), _env("LOGGER_PORT", 9999, int),
+            spool_path=_env("FW_SPOOL", os.path.join(root, "logs", "controller_spool.jsonl")),
+            spawn=hub.spawn, sleep=hub.sleep, log=self.logger.info)
+        self.mac_to_port = {}
+        self.datapaths = {}
+        self.pending_barriers = {}       # (dpid, xid) -> (BlockInfo, sent_at)
+        if self.mode == "dynamic":
+            self.sender.start()
+        hub.spawn(self._maintenance)
+        self.logger.info("firewall controller up: mode=%s threshold=%s window=%ss block=%ss edge=%s",
+                         self.mode, self.engine.tracker.threshold, self.engine.tracker.window,
+                         self.engine.block_time, sorted(self.edge_dpids))
+
+    # ------------------------------------------------------------------
+    # switch bring-up
+    # ------------------------------------------------------------------
+    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    def _switch_features(self, ev):
+        dp = ev.msg.datapath
+        ofp, parser = dp.ofproto, dp.ofproto_parser
+        self.datapaths[dp.id] = dp
+        self.mac_to_port.setdefault(dp.id, {})
+        # start from a clean table so restarts of the controller are idempotent
+        dp.send_msg(parser.OFPFlowMod(datapath=dp, table_id=ofp.OFPTT_ALL, command=ofp.OFPFC_DELETE,
+                                      out_port=ofp.OFPP_ANY, out_group=ofp.OFPG_ANY,
+                                      match=parser.OFPMatch()))
+        normal = [parser.OFPActionOutput(ofp.OFPP_NORMAL)]
+        edge = dp.id in self.edge_dpids
+
+        if self.mode == "nofw" or (self.mode == "static" and not edge):
+            self._flow(dp, 1, parser.OFPMatch(), normal)
+        elif self.mode == "static":
+            self._install_static_acl(dp)
+        else:
+            self._flow(dp, PRIO_MISS, parser.OFPMatch(),
+                       [parser.OFPActionOutput(ofp.OFPP_CONTROLLER, ofp.OFPCML_NO_BUFFER)])
+        self.logger.info("switch %s connected (%s, %s)", dp.id, "edge" if edge else "core", self.mode)
+        if self.mode == "dynamic":
+            self.sender.send(make_event("CONTROLLER", "*", "*", 0, "info", dpid=dp.id,
+                                        what="switch_connected", role="edge" if edge else "core",
+                                        mode=self.mode))
+
+    def _install_static_acl(self, dp):
+        """Compile policy.json once into permanent flows (the 'pre-set ACL')."""
+        ofp, parser = dp.ofproto, dp.ofproto_parser
+        normal = [parser.OFPActionOutput(ofp.OFPP_NORMAL)]
+        self._flow(dp, PRIO_ARP, parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP), normal)
+        if self.policy.default_action == "allow":
+            self._flow(dp, 1, parser.OFPMatch(), normal)
+        else:
+            self._flow(dp, PRIO_MISS, parser.OFPMatch(), [])           # explicit default drop
+
+        def fields(rule, reverse=False):
+            f = {"eth_type": ether_types.ETH_TYPE_IP}
+            if rule.proto != "*":
+                f["ip_proto"] = IP_PROTO[rule.proto]
+            a_src, a_dst = (rule.dst_net, rule.src_net) if reverse else (rule.src_net, rule.dst_net)
+            if a_src is not None:
+                f["ipv4_src"] = _addr_arg(a_src)
+            if a_dst is not None:
+                f["ipv4_dst"] = _addr_arg(a_dst)
+            if rule.port != "*" and rule.proto in ("tcp", "udp"):
+                f["%s_%s" % (rule.proto, "src" if reverse else "dst")] = rule.port
+            return f
+
+        for rule in self.policy.rules:
+            prio = PRIO_ALLOW + 10 * rule.specificity() + (1 if rule.action == "deny" else 0)
+            if rule.action == "allow":
+                self._flow(dp, prio, parser.OFPMatch(**fields(rule)), normal)
+                self._flow(dp, prio, parser.OFPMatch(**fields(rule, reverse=True)), normal)
+            else:
+                self._flow(dp, prio, parser.OFPMatch(**fields(rule)), [])
+
+    # ------------------------------------------------------------------
+    # packet-in
+    # ------------------------------------------------------------------
+    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
+    def _packet_in(self, ev):
+        msg = ev.msg
+        dp = msg.datapath
+        in_port = msg.match["in_port"]
+        pkt = packet.Packet(msg.data)
+        eth = pkt.get_protocol(ethernet.ethernet)
+        if eth is None or eth.ethertype == ether_types.ETH_TYPE_LLDP:
+            return
+        self.mac_to_port.setdefault(dp.id, {})[eth.src] = in_port
+        ip = pkt.get_protocol(ipv4.ipv4)
+        if ip is not None and self._is_group_address(ip.dst):
+            # IPv4 broadcast/multicast is not a connection attempt: flood, never classify
+            self._l2_forward(dp, in_port, msg, eth, install=False)
+        elif self.mode == "dynamic" and dp.id in self.edge_dpids and ip is not None:
+            self._firewall(dp, in_port, msg, eth, ip, pkt)
+        else:
+            self._l2_forward(dp, in_port, msg, eth, install=dp.id not in self.edge_dpids)
+
+    @staticmethod
+    def _is_group_address(addr):
+        try:
+            a = ipaddress.ip_address(addr)
+        except ValueError:
+            return False
+        return a.is_multicast or addr == "255.255.255.255"
+
+    def _l2_forward(self, dp, in_port, msg, eth, install):
+        ofp, parser = dp.ofproto, dp.ofproto_parser
+        out = self.mac_to_port[dp.id].get(eth.dst)
+        multicast = int(eth.dst.split(":")[0], 16) & 1
+        if out is None or multicast:
+            out, install = ofp.OFPP_FLOOD, False
+        actions = [parser.OFPActionOutput(out)]
+        if install:
+            self._flow(dp, PRIO_L2, parser.OFPMatch(eth_dst=eth.dst), actions, idle=60)
+        self._packet_out(dp, msg, in_port, actions)
+
+    def _packet_out(self, dp, msg, in_port, actions):
+        ofp, parser = dp.ofproto, dp.ofproto_parser
+        data = msg.data if msg.buffer_id == ofp.OFP_NO_BUFFER else None
+        dp.send_msg(parser.OFPPacketOut(datapath=dp, buffer_id=msg.buffer_id, in_port=in_port,
+                                        actions=actions, data=data))
+
+    # ------------------------------------------------------------------
+    # firewall decision on the edge switch
+    # ------------------------------------------------------------------
+    def _firewall(self, dp, in_port, msg, eth, ip, pkt):
+        proto, sport, dport = "ip", 0, 0
+        t, u = pkt.get_protocol(tcp.tcp), pkt.get_protocol(udp.udp)
+        if ip.proto == in_proto.IPPROTO_TCP and t is not None:
+            proto, sport, dport = "tcp", t.src_port, t.dst_port
+        elif ip.proto == in_proto.IPPROTO_UDP and u is not None:
+            proto, sport, dport = "udp", u.src_port, u.dst_port
+        elif ip.proto == in_proto.IPPROTO_ICMP:
+            proto = "icmp"
+        p = PacketInfo(eth.src, eth.dst, ip.src, ip.dst, proto, sport, dport)
+
+        d = self.engine.classify(dp.id, in_port, p)
+        for event in d.events:
+            self.sender.send(event)
+
+        if d.action in ("allow", "reply"):
+            self._install_allow(dp, in_port, msg, eth, p, d)
+        elif d.action == "deny":
+            self._install_deny(dp, p)
+        elif d.action == "block":
+            self._install_block(dp, d.block)
+        # 'ignored': host is already blocked; the drop rule is (or is about to be) in the switch
+
+    @staticmethod
+    def _l4(proto, src, dst, sport=None, dport=None):
+        f = {"eth_type": ether_types.ETH_TYPE_IP, "ipv4_src": src, "ipv4_dst": dst}
+        if proto in IP_PROTO:
+            f["ip_proto"] = IP_PROTO[proto]
+        if proto in ("tcp", "udp"):
+            if sport is not None:
+                f["%s_src" % proto] = sport
+            if dport is not None:
+                f["%s_dst" % proto] = dport
+        return f
+
+    def _install_allow(self, dp, in_port, msg, eth, p, d):
+        parser = dp.ofproto_parser
+        out = self.mac_to_port[dp.id].get(eth.dst)
+        if out is None:                               # destination not learned yet: just flood
+            self._packet_out(dp, msg, in_port, [parser.OFPActionOutput(dp.ofproto.OFPP_FLOOD)])
+            return
+        fwd_actions = [parser.OFPActionOutput(out)]
+        if p.proto == "ip":                           # unknown IP protocol: no broad flow, forward only
+            self._packet_out(dp, msg, in_port, fwd_actions)
+            return
+        if d.action == "reply":                       # server -> client, keyed on the service port
+            match = self._l4(p.proto, p.ip_src, p.ip_dst, sport=p.sport)
+            self._flow(dp, PRIO_ALLOW, match, fwd_actions, idle=self.allow_idle, cookie=COOKIE_ALLOW)
+        else:
+            match = self._l4(p.proto, p.ip_src, p.ip_dst, dport=p.dport if p.proto != "icmp" else None)
+            self._flow(dp, PRIO_ALLOW, match, fwd_actions, idle=self.allow_idle, cookie=COOKIE_ALLOW)
+            rmatch = self._l4(p.proto, p.ip_dst, p.ip_src, sport=p.dport if p.proto != "icmp" else None)
+            self._flow(dp, PRIO_ALLOW, rmatch, [parser.OFPActionOutput(in_port)],
+                       idle=self.allow_idle, cookie=COOKIE_ALLOW)
+        self._packet_out(dp, msg, in_port, fwd_actions)
+
+    def _install_deny(self, dp, p):
+        if p.proto == "ip":              # unknown IP protocol: a src/dst-only drop would be too broad
+            return
+        match = self._l4(p.proto, p.ip_src, p.ip_dst, sport=p.sport or None, dport=p.dport or None)
+        self._flow(dp, PRIO_DENY, match, [], idle=self.deny_idle, cookie=COOKIE_DENY)
+
+    def _install_block(self, dp, b):
+        ofp, parser = dp.ofproto, dp.ofproto_parser
+        # 1. drop EVERYTHING from that host (any ethertype) for block_time seconds
+        self._flow(dp, PRIO_BLOCK, parser.OFPMatch(in_port=b.in_port, eth_src=b.mac), [],
+                   hard=int(math.ceil(b.duration)), cookie=COOKIE_BLOCK,
+                   flags=ofp.OFPFF_SEND_FLOW_REM)
+        # 2. tidy: per-flow allow/deny entries of that source are now redundant
+        dp.send_msg(parser.OFPFlowMod(
+            datapath=dp, command=ofp.OFPFC_DELETE, out_port=ofp.OFPP_ANY, out_group=ofp.OFPG_ANY,
+            match=parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_src=b.ip)))
+        # 3. barrier = proof that the switch has actually applied the drop rule
+        bar = parser.OFPBarrierRequest(dp)
+        dp.send_msg(bar)
+        self.pending_barriers[(dp.id, bar.xid)] = (b, time.time())
+        self.logger.warning("BLOCK %s (%s) on s%s port %s for %ss", b.ip, b.mac, dp.id, b.in_port, b.duration)
+
+    @set_ev_cls(ofp_event.EventOFPBarrierReply, MAIN_DISPATCHER)
+    def _barrier_reply(self, ev):
+        entry = self.pending_barriers.pop((ev.msg.datapath.id, ev.msg.xid), None)
+        if entry is not None:
+            self.sender.send(self.engine.block_active_event(entry[0], time.time()))
+
+    @set_ev_cls(ofp_event.EventOFPFlowRemoved, MAIN_DISPATCHER)
+    def _flow_removed(self, ev):
+        msg = ev.msg
+        if msg.cookie != COOKIE_BLOCK:
+            return
+        try:
+            mac = msg.match["eth_src"]
+        except KeyError:
+            return
+        dpid = msg.datapath.id
+        for ip, info in list(self.engine.blocked.items()):
+            if info.mac == mac and info.dpid == dpid:
+                event = self.engine.unblock(ip, reason="hard_timeout", dropped_packets=msg.packet_count)
+                if event:
+                    self.sender.send(event)
+                    self.logger.warning("UNBLOCK %s (dropped %s packets)", ip, msg.packet_count)
+
+    # ------------------------------------------------------------------
+    def _flow(self, dp, priority, match, actions, idle=0, hard=0, cookie=0, flags=0):
+        ofp, parser = dp.ofproto, dp.ofproto_parser
+
+        if isinstance(match, dict):
+            match = parser.OFPMatch(**match)
+
+        inst = [parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)] if actions else []
+
+        dp.send_msg(parser.OFPFlowMod(
+            datapath=dp,
+            cookie=cookie,
+            priority=priority,
+            match=match,
+            instructions=inst,
+            idle_timeout=idle,
+            hard_timeout=hard,
+            flags=flags
+        ))
+
+    def _maintenance(self):
+        while True:
+            hub.sleep(1)
+            for info, event in self.engine.expire():       # FlowRemoved was lost
+                self.sender.send(event)
+                self.logger.warning("UNBLOCK %s (fallback timer)", info.ip)
+            now = time.time()
+            for key, (info, sent_at) in list(self.pending_barriers.items()):
+                if now - sent_at > 5:
+                    del self.pending_barriers[key]
+                    self.logger.warning("no barrier reply for block of %s", info.ip)

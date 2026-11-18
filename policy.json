@@ -1,0 +1,11 @@
+{
+  "_comment": "Policy table. Most specific match wins (exact IP > CIDR > '*', exact port > '*'). Anything not matched uses default_action.",
+  "default_action": "deny",
+  "rules": [
+    {"src": "*",         "dst": "10.0.0.10", "proto": "tcp",  "port": 5000, "action": "allow", "note": "main application, every client"},
+    {"src": "10.0.0.2",  "dst": "10.0.0.10", "proto": "tcp",  "port": 5002, "action": "allow", "note": "restricted service, h2 only (per-source classification)"},
+    {"src": "*",         "dst": "10.0.0.10", "proto": "tcp",  "port": 5001, "action": "deny",  "note": "admin port, nobody from the client network"},
+    {"src": "*",         "dst": "10.0.0.100","proto": "tcp",  "port": "*",  "action": "deny",  "note": "clients may not talk to the logger"},
+    {"src": "*",         "dst": "*",         "proto": "icmp", "port": "*",  "action": "allow", "note": "connectivity tests (pingall)"}
+  ]
+}

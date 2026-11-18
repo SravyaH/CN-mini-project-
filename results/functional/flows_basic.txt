@@ -1,0 +1,30 @@
+s1 flow table after basic tests (allow + deny rules)
+====================================================
+prio 200  tcp,nw_src=10.0.0.1,nw_dst=10.0.0.10,tp_src=45810,tp_dst=22                    -> drop                   pkts=1     idle=5   hard=0
+prio 200  tcp,nw_src=10.0.0.1,nw_dst=10.0.0.10,tp_src=51824,tp_dst=5002                  -> drop                   pkts=1     idle=5   hard=0
+prio 200  tcp,nw_src=10.0.0.1,nw_dst=10.0.0.100,tp_src=39950,tp_dst=9999                 -> drop                   pkts=1     idle=5   hard=0
+prio 100  icmp,nw_src=10.0.0.1,nw_dst=10.0.0.2                                           -> output:2               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.2,nw_dst=10.0.0.1                                           -> output:1               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.1,nw_dst=10.0.0.3                                           -> output:3               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.3,nw_dst=10.0.0.1                                           -> output:1               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.1,nw_dst=10.0.0.10                                          -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.10,nw_dst=10.0.0.1                                          -> output:1               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.1,nw_dst=10.0.0.100                                         -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.100,nw_dst=10.0.0.1                                         -> output:1               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.2,nw_dst=10.0.0.3                                           -> output:3               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.3,nw_dst=10.0.0.2                                           -> output:2               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.2,nw_dst=10.0.0.10                                          -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.10,nw_dst=10.0.0.2                                          -> output:2               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.2,nw_dst=10.0.0.100                                         -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.100,nw_dst=10.0.0.2                                         -> output:2               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.3,nw_dst=10.0.0.10                                          -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.10,nw_dst=10.0.0.3                                          -> output:3               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.3,nw_dst=10.0.0.100                                         -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.100,nw_dst=10.0.0.3                                         -> output:3               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.10,nw_dst=10.0.0.100                                        -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.100,nw_dst=10.0.0.10                                        -> output:4               pkts=0     idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.1,nw_dst=10.0.0.10,tp_dst=5000                               -> output:4               pkts=15    idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.2,nw_dst=10.0.0.10,tp_dst=5002                               -> output:4               pkts=8     idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.10,nw_dst=10.0.0.1,tp_src=5000                               -> output:1               pkts=14    idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.10,nw_dst=10.0.0.2,tp_src=5002                               -> output:2               pkts=6     idle=30  hard=0
+prio   0  (any)                                                                          -> CONTROLLER:65535       pkts=70    idle=0   hard=0

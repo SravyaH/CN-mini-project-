@@ -1,0 +1,2 @@
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=2 bytes_sent=0 errors=0

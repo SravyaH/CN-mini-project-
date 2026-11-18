@@ -1,0 +1,86 @@
+test_client_disconnect_mid_transfer_does_not_hurt_server (tests.test_app.AppTests.test_client_disconnect_mid_transfer_does_not_hurt_server) ... ok
+test_client_reports_refused (tests.test_app.AppTests.test_client_reports_refused) ... ok
+test_every_listening_port_serves (tests.test_app.AppTests.test_every_listening_port_serves) ... ok
+test_idle_timeout (tests.test_app.AppTests.test_idle_timeout) ... ok
+test_many_concurrent_clients (tests.test_app.AppTests.test_many_concurrent_clients) ... ok
+test_oversized_line (tests.test_app.AppTests.test_oversized_line) ... ok
+test_ping_echo_get (tests.test_app.AppTests.test_ping_echo_get) ... ok
+test_protocol_errors (tests.test_app.AppTests.test_protocol_errors) ... ok
+test_repeated_garbage_closes_connection (tests.test_app.AppTests.test_repeated_garbage_closes_connection) ... ok
+test_allowed_client_gets_forward_and_reverse_flows (tests.test_controller_glue.DynamicTests.test_allowed_client_gets_forward_and_reverse_flows) ... ok
+test_arp_is_forwarded_without_flows (tests.test_controller_glue.DynamicTests.test_arp_is_forwarded_without_flows) ... ok
+test_bringup (tests.test_controller_glue.DynamicTests.test_bringup) ... ok
+test_core_switch_is_plain_learning_switch (tests.test_controller_glue.DynamicTests.test_core_switch_is_plain_learning_switch) ... ok
+test_forbidden_port_is_dropped_and_logged (tests.test_controller_glue.DynamicTests.test_forbidden_port_is_dropped_and_logged) ... ok
+test_full_attack_lifecycle (tests.test_controller_glue.DynamicTests.test_full_attack_lifecycle) ... BLOCK 10.0.0.3 (00:00:00:00:00:03) on s1 port 3 for 20.0s
+UNBLOCK 10.0.0.3 (dropped 77 packets)
+ok
+test_icmp_and_group_addresses (tests.test_controller_glue.DynamicTests.test_icmp_and_group_addresses) ... ok
+test_other_cookies_in_flow_removed_are_ignored (tests.test_controller_glue.DynamicTests.test_other_cookies_in_flow_removed_are_ignored) ... ok
+test_per_source_classification (tests.test_controller_glue.DynamicTests.test_per_source_classification) ... ok
+test_reply_traffic_without_existing_flow (tests.test_controller_glue.DynamicTests.test_reply_traffic_without_existing_flow) ... ok
+test_bad_mode_rejected (tests.test_controller_glue.OtherModeTests.test_bad_mode_rejected) ... ok
+test_nofw_is_plain_normal (tests.test_controller_glue.OtherModeTests.test_nofw_is_plain_normal) ... ok
+test_static_acl_compiled_once (tests.test_controller_glue.OtherModeTests.test_static_acl_compiled_once) ... ok
+test_abrupt_disconnect_and_concurrent_clients (tests.test_logger_sender.LoggerTests.test_abrupt_disconnect_and_concurrent_clients) ... ok
+test_bad_input_does_not_kill_connection (tests.test_logger_sender.LoggerTests.test_bad_input_does_not_kill_connection) ... ok
+test_dedupe_survives_logger_restart (tests.test_logger_sender.LoggerTests.test_dedupe_survives_logger_restart) ... ok
+test_duplicates_are_acked_but_stored_once (tests.test_logger_sender.LoggerTests.test_duplicates_are_acked_but_stored_once) ... ok
+test_idle_timeout (tests.test_logger_sender.LoggerTests.test_idle_timeout) ... ok
+test_oversize_line_closes_connection (tests.test_logger_sender.LoggerTests.test_oversize_line_closes_connection) ... ok
+test_stats_command (tests.test_logger_sender.LoggerTests.test_stats_command) ... ok
+test_valid_event_acked_and_stored_with_timestamp (tests.test_logger_sender.LoggerTests.test_valid_event_acked_and_stored_with_timestamp) ... ok
+test_delivers_in_order (tests.test_logger_sender.SenderTests.test_delivers_in_order) ... ok
+test_logger_unreachable_never_blocks_then_recovers (tests.test_logger_sender.SenderTests.test_logger_unreachable_never_blocks_then_recovers) ... ok
+test_queue_is_bounded (tests.test_logger_sender.SenderTests.test_queue_is_bounded) ... ok
+test_reconnects_after_logger_restart (tests.test_logger_sender.SenderTests.test_reconnects_after_logger_restart) ... ok
+test_quick_grid_writes_all_csvs (tests.test_measure_pipeline.MeasurePipeline.test_quick_grid_writes_all_csvs) ... === mode nofw
+  impact: clients=1 rate=0
+  impact: clients=1 rate=200
+  impact: clients=5 rate=0
+  impact: clients=5 rate=200
+=== mode static
+  impact: clients=1 rate=0
+  impact: clients=1 rate=200
+  impact: clients=5 rate=0
+  impact: clients=5 rate=200
+=== mode dynamic
+  impact: clients=1 rate=0
+  impact: clients=1 rate=200
+  impact: clients=5 rate=0
+  impact: clients=5 rate=200
+=== response time (dynamic)
+  threshold=5 rate=50 trial=1
+  threshold=5 rate=50 trial=2
+  threshold=5 rate=500 trial=1
+  threshold=5 rate=500 trial=2
+  threshold=10 rate=50 trial=1
+  threshold=10 rate=50 trial=2
+  threshold=10 rate=500 trial=1
+  threshold=10 rate=500 trial=2
+done -> /tmp/tmprihkl5ae
+ok
+test_allow_installs_reverse_and_logs (tests.test_policy_engine.EngineTests.test_allow_installs_reverse_and_logs) ... ok
+test_attacker_isolated_from_legit_clients (tests.test_policy_engine.EngineTests.test_attacker_isolated_from_legit_clients) ... ok
+test_block_active_event_reports_response_time (tests.test_policy_engine.EngineTests.test_block_active_event_reports_response_time) ... ok
+test_deny_then_escalate_on_fifth (tests.test_policy_engine.EngineTests.test_deny_then_escalate_on_fifth) ... ok
+test_expire_fallback_after_grace (tests.test_policy_engine.EngineTests.test_expire_fallback_after_grace) ... ok
+test_icmp_allowed (tests.test_policy_engine.EngineTests.test_icmp_allowed) ... ok
+test_per_source_classification (tests.test_policy_engine.EngineTests.test_per_source_classification) ... ok
+test_reply_traffic_recognised (tests.test_policy_engine.EngineTests.test_reply_traffic_recognised) ... ok
+test_slow_probing_does_not_escalate (tests.test_policy_engine.EngineTests.test_slow_probing_does_not_escalate) ... ok
+test_unblock_resets_state_and_logs_recovery (tests.test_policy_engine.EngineTests.test_unblock_resets_state_and_logs_recovery) ... ok
+test_bad_policy_rejected (tests.test_policy_engine.PolicyTests.test_bad_policy_rejected) ... ok
+test_policy_table (tests.test_policy_engine.PolicyTests.test_policy_table) ... ok
+test_specificity_and_fail_closed (tests.test_policy_engine.PolicyTests.test_specificity_and_fail_closed) ... ok
+test_bad_input (tests.test_protocol.AppProtocol.test_bad_input) ... ok
+test_err_line (tests.test_protocol.AppProtocol.test_err_line) ... ok
+test_valid_commands (tests.test_protocol.AppProtocol.test_valid_commands) ... ok
+test_rejects (tests.test_protocol.EventProtocol.test_rejects) ... ok
+test_roundtrip (tests.test_protocol.EventProtocol.test_roundtrip) ... ok
+test_wildcards_and_detail (tests.test_protocol.EventProtocol.test_wildcards_and_detail) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 6.207s
+
+OK

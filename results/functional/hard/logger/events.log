@@ -1,0 +1,29 @@
+2026-11-11T11:29:21.979Z CONTROLLER     info    * -> *:0 [dpid=1] mode=dynamic role=edge what=switch_connected
+2026-11-11T11:29:21.996Z CONTROLLER     info    * -> *:0 [dpid=2] mode=dynamic role=core what=switch_connected
+2026-11-11T11:29:26.286Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.2:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.301Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.3:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.319Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.10:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.340Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.100:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.363Z RULE_ADDED     allow   10.0.0.2 -> 10.0.0.3:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.383Z RULE_ADDED     allow   10.0.0.2 -> 10.0.0.10:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.399Z RULE_ADDED     allow   10.0.0.2 -> 10.0.0.100:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.425Z RULE_ADDED     allow   10.0.0.3 -> 10.0.0.10:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.440Z RULE_ADDED     allow   10.0.0.3 -> 10.0.0.100:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:29:26.593Z RULE_ADDED     allow   10.0.0.2 -> 10.0.0.10:5000 [dpid=1] proto=tcp rule=main application, every client sport=45658
+2026-11-11T11:29:26.619Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.10:5000 [dpid=1] proto=tcp rule=main application, every client sport=34342
+2026-11-11T11:29:27.582Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:1000 [dpid=1] proto=tcp rule=default policy sport=42284
+2026-11-11T11:29:27.588Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:1001 [dpid=1] proto=tcp rule=default policy sport=49648
+2026-11-11T11:29:27.593Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:1002 [dpid=1] proto=tcp rule=default policy sport=60330
+2026-11-11T11:29:27.597Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:1003 [dpid=1] proto=tcp rule=default policy sport=38684
+2026-11-11T11:29:27.602Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:1004 [dpid=1] proto=tcp rule=default policy sport=34544
+2026-11-11T11:29:27.602Z RULE_ESCALATED block   10.0.0.3 -> *:0 [dpid=1] block_time_s=8.0 detection_ms=20.315 first_violation_ts=1794396567.582181 violations=5 window_s=10.0
+2026-11-11T11:29:27.608Z CONTROLLER     info    10.0.0.3 -> *:0 [dpid=1] install_ms=5.595 response_ms=25.909 what=block_active
+2026-11-11T11:29:35.630Z RULE_EXPIRED   unblock 10.0.0.3 -> *:0 [dpid=1] blocked_for_s=8.028 dropped_packets=1060 reason=hard_timeout
+2026-11-11T11:29:35.816Z RULE_ADDED     allow   10.0.0.3 -> 10.0.0.10:5000 [dpid=1] proto=tcp rule=main application, every client sport=39052
+2026-11-11T11:29:47.927Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:2000 [dpid=1] proto=tcp rule=default policy sport=37052
+2026-11-11T11:29:47.932Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:2001 [dpid=1] proto=tcp rule=default policy sport=48480
+2026-11-11T11:29:47.937Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:2002 [dpid=1] proto=tcp rule=default policy sport=58234
+2026-11-11T11:29:47.943Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:2003 [dpid=1] proto=tcp rule=default policy sport=45576
+2026-11-11T11:29:47.948Z RULE_ADDED     deny    10.0.0.3 -> 10.0.0.10:2004 [dpid=1] proto=tcp rule=default policy sport=55926
+2026-11-11T11:29:47.948Z RULE_ESCALATED block   10.0.0.3 -> *:0 [dpid=1] block_time_s=8.0 detection_ms=21.082 first_violation_ts=1794396587.927622 violations=5 window_s=10.0
+2026-11-11T11:29:47.957Z CONTROLLER     info    10.0.0.3 -> *:0 [dpid=1] install_ms=9.229 response_ms=30.311 what=block_active

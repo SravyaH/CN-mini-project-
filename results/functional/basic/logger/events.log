@@ -1,0 +1,18 @@
+2026-11-11T11:28:19.222Z CONTROLLER     info    * -> *:0 [dpid=1] mode=dynamic role=edge what=switch_connected
+2026-11-11T11:28:19.463Z CONTROLLER     info    * -> *:0 [dpid=2] mode=dynamic role=core what=switch_connected
+2026-11-11T11:28:24.260Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.2:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.285Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.3:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.316Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.10:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.348Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.100:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.377Z RULE_ADDED     allow   10.0.0.2 -> 10.0.0.3:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.404Z RULE_ADDED     allow   10.0.0.2 -> 10.0.0.10:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.431Z RULE_ADDED     allow   10.0.0.2 -> 10.0.0.100:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.482Z RULE_ADDED     allow   10.0.0.3 -> 10.0.0.10:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.502Z RULE_ADDED     allow   10.0.0.3 -> 10.0.0.100:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.552Z RULE_ADDED     allow   10.0.0.10 -> 10.0.0.100:0 [dpid=1] proto=icmp rule=connectivity tests (pingall) sport=0
+2026-11-11T11:28:24.748Z RULE_ADDED     allow   10.0.0.1 -> 10.0.0.10:5000 [dpid=1] proto=tcp rule=main application, every client sport=44838
+2026-11-11T11:28:24.935Z RULE_ADDED     deny    10.0.0.1 -> 10.0.0.10:5001 [dpid=1] proto=tcp rule=admin port, nobody from the client network sport=45418
+2026-11-11T11:28:26.593Z RULE_ADDED     deny    10.0.0.1 -> 10.0.0.10:22 [dpid=1] proto=tcp rule=default policy sport=45810
+2026-11-11T11:28:28.251Z RULE_ADDED     allow   10.0.0.2 -> 10.0.0.10:5002 [dpid=1] proto=tcp rule=restricted service, h2 only (per-source classification) sport=42600
+2026-11-11T11:28:28.552Z RULE_ADDED     deny    10.0.0.1 -> 10.0.0.10:5002 [dpid=1] proto=tcp rule=default policy sport=51824
+2026-11-11T11:28:30.222Z RULE_ADDED     deny    10.0.0.1 -> 10.0.0.100:9999 [dpid=1] proto=tcp rule=clients may not talk to the logger sport=39950

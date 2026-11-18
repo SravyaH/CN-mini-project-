@@ -1,0 +1,23 @@
+s1 flow table after the sweep scenario
+======================================
+prio 100  icmp,nw_src=10.0.0.1,nw_dst=10.0.0.2                                           -> output:2               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.2,nw_dst=10.0.0.1                                           -> output:1               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.1,nw_dst=10.0.0.3                                           -> output:3               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.1,nw_dst=10.0.0.10                                          -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.10,nw_dst=10.0.0.1                                          -> output:1               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.1,nw_dst=10.0.0.100                                         -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.100,nw_dst=10.0.0.1                                         -> output:1               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.2,nw_dst=10.0.0.3                                           -> output:3               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.2,nw_dst=10.0.0.10                                          -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.10,nw_dst=10.0.0.2                                          -> output:2               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.2,nw_dst=10.0.0.100                                         -> output:4               pkts=1     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.100,nw_dst=10.0.0.2                                         -> output:2               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.10,nw_dst=10.0.0.3                                          -> output:3               pkts=2     idle=30  hard=0
+prio 100  icmp,nw_src=10.0.0.100,nw_dst=10.0.0.3                                         -> output:3               pkts=2     idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.2,nw_dst=10.0.0.10,tp_dst=5000                               -> output:4               pkts=1421  idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.1,nw_dst=10.0.0.10,tp_dst=5000                               -> output:4               pkts=1417  idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.3,nw_dst=10.0.0.10,tp_dst=5000                               -> output:4               pkts=2     idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.10,nw_dst=10.0.0.2,tp_src=5000                               -> output:2               pkts=1088  idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.10,nw_dst=10.0.0.1,tp_src=5000                               -> output:1               pkts=1071  idle=30  hard=0
+prio 100  tcp,nw_src=10.0.0.10,nw_dst=10.0.0.3,tp_src=5000                               -> output:3               pkts=1     idle=30  hard=0
+prio   0  (any)                                                                          -> CONTROLLER:65535       pkts=67    idle=0   hard=0

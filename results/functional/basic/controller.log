@@ -1,0 +1,8 @@
+loading app /home/subhan-khanapure/Downloads/sdn-fw/controller/firewall_controller.py
+loading app ryu.controller.ofp_handler
+instantiating app /home/subhan-khanapure/Downloads/sdn-fw/controller/firewall_controller.py of FirewallController
+firewall controller up: mode=dynamic threshold=5 window=10.0s block=8.0s edge=[1]
+instantiating app ryu.controller.ofp_handler of OFPHandler
+switch 1 connected (edge, dynamic)
+switch 2 connected (core, dynamic)
+logger connected 192.168.99.2:9999

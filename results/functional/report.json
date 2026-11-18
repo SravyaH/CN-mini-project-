@@ -1,0 +1,247 @@
+[
+ {
+  "name": "pingall (ICMP allowed by policy)",
+  "ok": true,
+  "detail": "0% loss"
+ },
+ {
+  "name": "h1 -> server:5000 allowed",
+  "ok": true,
+  "detail": "connect 21.5 ms"
+ },
+ {
+  "name": "h1 -> server:5001 denied (SYN dropped)",
+  "ok": true,
+  "detail": "error=connect_timeout"
+ },
+ {
+  "name": "dump-flows shows the drop rule (prio 200, tp_dst=5001, actions=drop)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "dump-flows shows the allow rule (prio 100, tp_dst=5000, output)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "h1 -> server:22 denied by default policy (timeout, not refused)",
+  "ok": true,
+  "detail": "error=connect_timeout"
+ },
+ {
+  "name": "h2 -> server:5002 allowed (per-source rule)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "h1 -> server:5002 denied (same port, different source)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "h1 -> logger:9999 denied (clients may not reach the logger)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger received ALLOW h1->server:5000",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger received DENY  h1->server:5001",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger received DENY  h1->server:22 (default policy)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger received DENY  h1->server:5002 and DENY h1->logger:9999",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "no BLOCK yet (4 denies < threshold 5)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "3 clients served concurrently on :5000",
+  "ok": true,
+  "detail": "rtts={1: 40, 2: 40, 3: 40}"
+ },
+ {
+  "name": "3 concurrent forbidden attempts all dropped",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger has one DENY per client (per-source classification)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger has ALLOW events for all three clients",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "repeated forbidden attempts escalate to a BLOCK rule (prio 300)",
+  "ok": true,
+  "detail": "visible 1.10s after first attempt"
+ },
+ {
+  "name": "block rule matches in_port + source MAC, drops everything, hard_timeout=12",
+  "ok": true,
+  "detail": "kets=0, n_bytes=0, hard_timeout=12, send_flow_rem priority=300,in_port=3,dl_src=00:00:00:00:00:03 actions=drop"
+ },
+ {
+  "name": "blocked h3 cannot even reach the ALLOWED port",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "blocked h3 cannot ping (drop everything)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "other clients (h1, h2) unaffected during the block",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "h3's per-flow rules were cleaned up (table stays small)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "no block rule for h1 or h2",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger received BLOCK for h3 with violation count",
+  "ok": true,
+  "detail": "{'block_time_s': 12.0, 'detection_ms': 800.992, 'first_violation_ts': 1794396538.358836, 'violations': 5, 'window_s': 10.0}"
+ },
+ {
+  "name": "logger received 'block_active' (barrier-confirmed) with response time",
+  "ok": true,
+  "detail": "response_ms=805.97 install_ms=4.98"
+ },
+ {
+  "name": "block rule disappears by itself (hard timeout)",
+  "ok": true,
+  "detail": "visible for ~12.0s (configured 12s)"
+ },
+ {
+  "name": "logger received UNBLOCK for h3 (with dropped-packet count)",
+  "ok": true,
+  "detail": "{'blocked_for_s': 12.039, 'dropped_packets': 6, 'reason': 'hard_timeout'}"
+ },
+ {
+  "name": "h3 works again after recovery",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "after recovery 4 denies do NOT re-block (counter was reset)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "every event has ts, type, src, dst, port, action and a receive timestamp",
+  "ok": true,
+  "detail": "36 events"
+ },
+ {
+  "name": "event timestamps are non-decreasing in arrival order",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "no duplicate event ids",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "live events reach the logger quickly (max lag < 1 s)",
+  "ok": true,
+  "detail": "max lag 46 ms"
+ },
+ {
+  "name": "attacker (h3, port sweep @200/s) is blocked within 5 s",
+  "ok": true,
+  "detail": "after 0.13s"
+ },
+ {
+  "name": "legitimate clients kept 100% success during the sweep",
+  "ok": true,
+  "detail": "{1: '131/131 sessions, rtt p95 0.96 ms', 2: '132/132 sessions, rtt p95 0.95 ms'}"
+ },
+ {
+  "name": "sweep SYNs were dropped, not answered",
+  "ok": true,
+  "detail": "{'dropped': 1000}"
+ },
+ {
+  "name": "controller saw only ~threshold packet-ins from the attacker (rule took over)",
+  "ok": true,
+  "detail": "5 deny events for 1000 attempts"
+ },
+ {
+  "name": "h1/h2 never blocked",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "attacker recovers after the timeout",
+  "ok": true,
+  "detail": "dropped 1060 packets while blocked"
+ },
+ {
+  "name": "h3 can use the allowed service again",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger DOWN: attacker is still blocked (enforcement does not depend on the logger)",
+  "ok": true,
+  "detail": "after 0.24s"
+ },
+ {
+  "name": "logger DOWN: legitimate client unaffected",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger DOWN: no events were stored by the (dead) logger meanwhile",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger DOWN: controller kept the events (queue + local spool file)",
+  "ok": true,
+  "detail": "7 events in controller_spool.jsonl"
+ },
+ {
+  "name": "logger back: queued events are delivered (BLOCK of the second sweep arrives)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "logger back: delayed events keep their ORIGINAL timestamp (recv_ts is later)",
+  "ok": true,
+  "detail": "max delivery delay 3.2s"
+ },
+ {
+  "name": "no lost / duplicated events after reconnect",
+  "ok": true,
+  "detail": ""
+ }
+]

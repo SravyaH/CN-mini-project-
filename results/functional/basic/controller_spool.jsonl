@@ -1,0 +1,2 @@
+{"action": "info", "detail": {"mode": "dynamic", "role": "edge", "what": "switch_connected"}, "dpid": 1, "dst": "*", "eid": "10054-1794396497-1", "port": 0, "src": "*", "ts": 1794396499.222036, "type": "CONTROLLER"}
+{"action": "info", "detail": {"mode": "dynamic", "role": "core", "what": "switch_connected"}, "dpid": 2, "dst": "*", "eid": "10054-1794396497-2", "port": 0, "src": "*", "ts": 1794396499.463305, "type": "CONTROLLER"}

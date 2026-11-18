@@ -1,0 +1,18 @@
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=0 bytes_sent=0 errors=0
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=0 bytes_sent=0 errors=0
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=222 bytes_sent=0 errors=0
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=212 bytes_sent=0 errors=0
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=213 bytes_sent=0 errors=0
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=189 bytes_sent=0 errors=0
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=213 bytes_sent=0 errors=0
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=217 bytes_sent=0 errors=0
+app server on 0.0.0.0 ports [5000, 5001, 5002] (thread per client)
+app server stopped: total=216 bytes_sent=0 errors=0

@@ -1,0 +1,10 @@
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/basic/logger/
+logger stopped: {"connections": 2, "events": 20}
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/basic/logger/
+logger stopped: {"connections": 2, "events": 19}
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/basic/logger/
+logger stopped: {"connections": 2, "events": 21}
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/basic/logger/
+logger stopped: {"connections": 2, "events": 22}
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/basic/logger/
+logger stopped: {"connections": 2, "events": 18}

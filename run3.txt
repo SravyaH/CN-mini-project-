@@ -1,0 +1,140 @@
+----------------------------------------------------------------------
+Ran 54 tests in 7.205s
+
+OK
+done -> /tmp/tmpl5nzcetz
+
+== GROUP basic: allowed / denied / per-source classification / logger sees events
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+  [PASS] pingall (ICMP allowed by policy) -- 0% loss
+  [PASS] h1 -> server:5000 allowed -- connect 21.5 ms
+  [PASS] h1 -> server:5001 denied (SYN dropped) -- error=connect_timeout
+  [PASS] dump-flows shows the drop rule (prio 200, tp_dst=5001, actions=drop)
+  [PASS] dump-flows shows the allow rule (prio 100, tp_dst=5000, output)
+  [PASS] h1 -> server:22 denied by default policy (timeout, not refused) -- error=connect_timeout
+  [PASS] h2 -> server:5002 allowed (per-source rule)
+  [PASS] h1 -> server:5002 denied (same port, different source)
+  [PASS] h1 -> logger:9999 denied (clients may not reach the logger)
+  [PASS] logger received ALLOW h1->server:5000
+  [PASS] logger received DENY  h1->server:5001
+  [PASS] logger received DENY  h1->server:22 (default policy)
+  [PASS] logger received DENY  h1->server:5002 and DENY h1->logger:9999
+  [PASS] no BLOCK yet (4 denies < threshold 5)
+
+== GROUP autoblock: concurrency, escalation, timed recovery, runtime rule changes, logs
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+  [PASS] 3 clients served concurrently on :5000 -- rtts={1: 40, 2: 40, 3: 40}
+  [PASS] 3 concurrent forbidden attempts all dropped
+  [PASS] logger has one DENY per client (per-source classification)
+  [PASS] logger has ALLOW events for all three clients
+  [PASS] repeated forbidden attempts escalate to a BLOCK rule (prio 300) -- visible 1.10s after first attempt
+  [PASS] block rule matches in_port + source MAC, drops everything, hard_timeout=12 -- kets=0, n_bytes=0, hard_timeout=12, send_flow_rem priority=300,in_port=3,dl_src=00:00:00:00:00:03 actions=drop
+  [PASS] blocked h3 cannot even reach the ALLOWED port
+  [PASS] blocked h3 cannot ping (drop everything)
+  [PASS] other clients (h1, h2) unaffected during the block
+  [PASS] h3's per-flow rules were cleaned up (table stays small)
+  [PASS] no block rule for h1 or h2
+  [PASS] logger received BLOCK for h3 with violation count -- {'block_time_s': 12.0, 'detection_ms': 800.992, 'first_violation_ts': 1794396538.358836, 'violations': 5, 'window_s': 10.0}
+  [PASS] logger received 'block_active' (barrier-confirmed) with response time -- response_ms=805.97 install_ms=4.98
+  [PASS] block rule disappears by itself (hard timeout) -- visible for ~12.0s (configured 12s)
+  [PASS] logger received UNBLOCK for h3 (with dropped-packet count) -- {'blocked_for_s': 12.039, 'dropped_packets': 6, 'reason': 'hard_timeout'}
+  [PASS] h3 works again after recovery
+  [PASS] after recovery 4 denies do NOT re-block (counter was reset)
+  [PASS] every event has ts, type, src, dst, port, action and a receive timestamp -- 36 events
+  [PASS] event timestamps are non-decreasing in arrival order
+  [PASS] no duplicate event ids
+  [PASS] live events reach the logger quickly (max lag < 1 s) -- max lag 46 ms
+
+== GROUP hard: port sweep during legitimate traffic, then logger unreachable
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+*** Error: Warning: sch_htb: quantum of class 50001 is big. Consider r2q change.
+  [PASS] attacker (h3, port sweep @200/s) is blocked within 5 s -- after 0.13s
+  [PASS] legitimate clients kept 100% success during the sweep -- {1: '131/131 sessions, rtt p95 0.96 ms', 2: '132/132 sessions, rtt p95 0.95 ms'}
+  [PASS] sweep SYNs were dropped, not answered -- {'dropped': 1000}
+  [PASS] controller saw only ~threshold packet-ins from the attacker (rule took over) -- 5 deny events for 1000 attempts
+  [PASS] h1/h2 never blocked
+  [PASS] attacker recovers after the timeout -- dropped 1060 packets while blocked
+  [PASS] h3 can use the allowed service again
+  [PASS] logger DOWN: attacker is still blocked (enforcement does not depend on the logger) -- after 0.24s
+  [PASS] logger DOWN: legitimate client unaffected
+  [PASS] logger DOWN: no events were stored by the (dead) logger meanwhile
+  [PASS] logger DOWN: controller kept the events (queue + local spool file) -- 7 events in controller_spool.jsonl
+  [PASS] logger back: queued events are delivered (BLOCK of the second sweep arrives)
+  [PASS] logger back: delayed events keep their ORIGINAL timestamp (recv_ts is later) -- max delivery delay 3.2s
+  [PASS] no lost / duplicated events after reconnect
+
+49 checks, 49 passed, 0 failed

@@ -1,0 +1,10 @@
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/autoblock/logger/
+logger stopped: {"connections": 2, "events": 34}
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/autoblock/logger/
+logger stopped: {"connections": 3, "events": 36}
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/autoblock/logger/
+logger stopped: {"connections": 2, "events": 34}
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/autoblock/logger/
+logger stopped: {"connections": 2, "events": 30}
+logger listening on 0.0.0.0:9999, writing to /home/subhan-khanapure/Downloads/sdn-fw/results/functional/autoblock/logger/
+logger stopped: {"connections": 2, "events": 36}
